@@ -1,0 +1,170 @@
+#section-auth {
+  position: absolute;
+  top: 55%;
+  left: 15%;
+}
+#section-register {
+  position: absolute;
+  top: 40%;
+  left: 15%;  
+}
+.text-font {
+  font-size: 15px;
+  font-family: 微软雅黑; 
+}
+.text-boder{
+  background:transparent;
+  border:2px solid #999;
+}
+.cube-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  perspective: 2000px;
+  background: #222;
+}
+
+#cube {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  transform-style: preserve-3d;
+}
+
+#cube figure {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  position: absolute;
+  background: rgb(0, 0, 0);
+  color: white;
+}
+#cube figure div {
+  height: inherit;
+  background-size: cover;
+  background-position: center;
+}
+
+#cube .front {
+  transform: rotateY(0deg) translateZ(50vw);
+  background: rgb(234, 211, 178);
+}
+
+#cube .back {
+  transform: rotateY(180deg) translateZ(50vw);
+  background: #b3dbad;
+}
+
+#cube .right {
+  transform: rotateY(90deg) translateZ(50vw);
+  background: rgb(155, 204, 219);
+}
+
+#cube .left {
+  transform: rotateY(-90deg) translateZ(50vw);
+  background: #edcfd3;
+}
+
+#cube .top {
+  transform: rotateX(90deg) translateZ(50vw);
+  background: mintgreen;
+}
+
+#cube .bottom {
+  transform: rotateX(-90deg) translateZ(50vw);
+  background: lavender;
+}
+
+#cube {
+  transform: translateZ(-50vw);
+}
+
+#cube {
+  transition: transform 1.5s ease-in-out;
+}
+
+.button-wrap {
+  position: absolute;
+  bottom: 15px;
+  right: 2%;
+  transform: translateX(2%);
+
+  font-size: 18px;
+  font-family: 微软雅黑;
+}
+
+article {
+  position: absolute;
+  top: 25%;
+  left: 30%;
+  transform: translateY(-50%);
+}
+article img {
+  max-height: 150px;
+}
+
+.button-wrap button {
+  width: 60px;
+  background: rgb(245, 228, 228);
+  border: 0px;
+  border-bottom: 3px solid #222;
+  box-shadow: grey 0px 2px 2px 0px;
+  cursor: pointer;
+}
+
+.button-wrap:hover button:not(:hover) {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.button-wrap button:focus {
+  box-shadow: dodgerblue 0px 2px 2px 0px;
+  outline: none;
+}
+
+input{
+  border: 1px solid #ccc;
+  padding: 7px 0px;
+  border-radius: 5px;
+  padding-left:5px;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s             
+}             
+
+.button-login {
+  width: 280px;
+  height: 40px;
+  font-size: 18px;
+  font-family: 微软雅黑;
+  letter-spacing: 8px;
+  padding-left: 12px;
+  border-radius: 5px;
+  background: -webkit-linear-gradient(top, #66B5E6, #2e88c0);
+  background: -moz-linear-gradient(top, #66B5E6, #2e88c0);
+  background: linear-gradient(top, #66B5E6, #2e88c0);
+  background: -ms-linear-gradient(top, #66B5E6, #2e88c0);
+  border: 1px solid #2576A8;
+  box-shadow: 0 1px 2px #B8DCF1 inset, 0 -1px 0 #316F96 inset;
+  color: #fff;
+  text-shadow: 1px 1px 0.5px #22629B;
+  cursor: pointer;
+}
+
+.verificationCode{
+  width: 6rem;
+  top: 68%;
+  position: absolute;
+  right: 0;
+}
+
+canvas{
+  width: 100%;
+  height: 100%;
+}
+
+#code_img {
+  width: 100%;
+  height: 40px;
+  cursor: pointer;
+  vertical-align: top;
+}

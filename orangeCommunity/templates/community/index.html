@@ -1,3 +1,39 @@
 <html>
-    sadwdad
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OrangeCommunity</title>
+	<link rel="icon" href="{{ url_for('static',filename='img/logo.ico') }}" type="images/x-ico" />
+	<link rel="stylesheet" type="text/css" href="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+</head>
+
+<body>
+	<div>
+		
+		<ul id="page" class="pagination"></ul>
+	</div>		
+
+	<script type="text/javascript" src="{{ url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script>
+	<script type="text/javascript" src="{{ url_for('static',filename='js/jq-paginator.js') }}"></script>
+	<script type="text/javascript">
+		$("#page").jqPaginator({
+			totalCounts: 78,
+			pageSize:10,
+			visiblePages: 10,
+			currentPage: 1,
+			first: '<li class="first"><a href="javascript:void(0);">First<\/a><\/li>',
+			prev: '<li class="prev"><a href="javascript:void(0);">Previous<\/a><\/li>',
+			next: '<li class="next"><a href="javascript:void(0);">Next<\/a><\/li>',
+			last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
+			page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
+			onPageChange: function(n) {
+				//do...
+			}
+      });
+	</script>
+</body>
+
 </html>

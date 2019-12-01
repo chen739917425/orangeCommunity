@@ -168,3 +168,33 @@ canvas{
   cursor: pointer;
   vertical-align: top;
 }
+
+.customBootstrap .pagination > li > a {
+  margin-right: 5px;
+  border-radius: 2px;
+  background: #fff;
+  color: #333;
+  border-color: #ccc;
+  padding: 6px 15px;
+}
+.customBootstrap .pagination > li > a:hover,
+.customBootstrap .pagination > li > a:focus {
+  color: #fff;
+  background: #fb9400;
+  border-color: #fb9400;
+}
+.customBootstrap .pagination > .active > a,
+.customBootstrap .pagination > .active > a:hover,
+.customBootstrap .pagination > .active > a:focus {
+  color: #fff;
+  background: #fb9400;
+  border-color: #fb9400;
+}
+.customBootstrap .pagination > .disabled > a,
+.customBootstrap .pagination > .disabled > a:hover,
+.customBootstrap .pagination > .disabled > a:focus {
+  color: #999;
+  background: #fff;
+  border-color: #ddd;
+  cursor: not-allowed;
+}

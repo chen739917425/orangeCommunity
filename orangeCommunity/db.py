@@ -1,6 +1,6 @@
 from flask import current_app, g
 import pymysql
-def connect_db():
+def connect_db(dicCur=None):
     if 'con' not in g:
         g.con=pymysql.connect(
             host=current_app.config['HOST'],
@@ -11,7 +11,10 @@ def connect_db():
             charset=current_app.config['CHARSET']
         )
     if 'cur' not in g:
-        g.cur=g.con.cursor()
+        if not dicCur:
+            g.cur=g.con.cursor()
+        else:
+            g.cur=g.con.cursor(dicCur)
     return g.con, g.cur
 
 def close_db(e=None):

@@ -138,7 +138,7 @@
 							$('#loginErr').text(data['err']);
 						else{
 							localStorage.setItem('token',data['data']['token']);
-							window.location('http://127.0.0.1:5000/community')
+							window.location.href = 'http://127.0.0.1:5000/community';
 						}
 					},
 					error:function(data,type,err){

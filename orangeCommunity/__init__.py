@@ -11,10 +11,4 @@ def create_app():
     @app.route('/')
     def index():
         return render_template('auth/index.html')
-    @app.route('/community')
-    def community():
-        return render_template('community/index.html')
-    @app.route('/community/profile')
-    def profile():
-        return render_template('community/profile.html')
     return app

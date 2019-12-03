@@ -1,0 +1,42 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OrangeCommunity</title>
+	<link rel="icon" href="{{ url_for('static',filename='img/logo.ico') }}" type="images/x-ico" />
+	<link rel="stylesheet" type="text/css" href="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+</head>
+<body>
+    <form id='picForm' enctype='multipart/form-data'>
+        <input name='file' type='file' accept=".jpeg,.jpg,.png"/>
+        <button id='upload' type='button' class='button-upload'>上传</button>
+    </form>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script>
+    <script type='text/javascript' src="{{ url_for('static',filename='js/jquery.form.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/jq-paginator.js') }}"></script>
+    <script type="text/javascript">
+        $('#upload').on('click',function(){
+            var url='http://127.0.0.1:5000/community/profile_pic?id='+localStorage['ORGid'];
+            var options={
+                url:url,
+                type:'POST',
+                headers:{
+                    'ORGtoken':localStorage.getItem('ORGtoken')
+                },
+                dataType:'json',
+                success:function(data){
+                    console.log(data);
+                },
+                error:function(data,type,err){
+                    console.log(type);
+                    console.log(err);
+                    alert('请求出错，请重试');
+                }
+            };
+            $('#picForm').ajaxSubmit(options);
+        });
+    </script>
+</body>
+</html>

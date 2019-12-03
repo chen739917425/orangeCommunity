@@ -127,17 +127,18 @@
 				$('#loginErr').text('用户名/密码不能为空');
 			else {
 				$.ajax({
-					'url': 'http://127.0.0.1:5000/auth/login',
-					'type': 'POST',
-					'header':{
+					url: 'http://127.0.0.1:5000/auth/login',
+					type: 'POST',
+					header:{
 						'Content-Type':'application/json'
 					},
-					'data':JSON.stringify(data),
+					data:JSON.stringify(data),
 					success:function(data){
 						if (data['status']!=2000)
 							$('#loginErr').text(data['err']);
 						else{
-							localStorage.setItem('token',data['data']['token']);
+							localStorage.setItem('ORGtoken',data['data']['token']);
+							localStorage.setItem('ORGid',data['data']['id']);
 							window.location.href = 'http://127.0.0.1:5000/community';
 						}
 					},
@@ -168,10 +169,10 @@
 				if (!data['phone'])
 					data['phone']=null;				
 				$.ajax({
-					'url': 'http://127.0.0.1:5000/auth/register',
-					'type':'POST',
-					'data':JSON.stringify(data),
-					'header':{
+					url: 'http://127.0.0.1:5000/auth/register',
+					type:'POST',
+					data:JSON.stringify(data),
+					header:{
 						'Content-Type':'application/json'
 					},
 					success:function(data){

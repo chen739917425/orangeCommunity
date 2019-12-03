@@ -5,12 +5,26 @@ from flask_uploads import configure_uploads,UploadSet
 from werkzeug.security import generate_password_hash,check_password_hash
 from . import db, JWT
 bp = Blueprint('community', __name__, url_prefix='/community')
+
+#验证token
+def check_token(userid,token):
+    payload=JWT.verify_token(token)
+    if not payload:
+        return False
+    if userid!=str(payload['id']):
+        return False
+    return True
+
+#定向社区首页
 @bp.route('/',methods=['GET','POST'])
 def community():
     return render_template('community/index.html')
+
+#定向社区个人页
 @bp.route('/person')
 def person():
     return render_template('community/person.html')
+
 #GET:获取用户个人信息
 @bp.route('/profile')
 def profile():
@@ -23,6 +37,8 @@ def profile():
         res=cur.fetchone()
         resp={'data':res}
         return Response(json.dumps(resp),mimetype='application/json')
+
+#POST:上传头像
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg'}
 @bp.route('/profile_pic',methods=['POST'])
@@ -30,12 +46,8 @@ def profile_pic():
     if request.method=='POST':
         resp={'status':2000,'err':None}
         token=request.headers.get('ORGtoken')
-        payload=JWT.verify_token(token)
-        if not payload:
-            resp['status']=1005
-            resp['err']='身份验证失效'
         userid=request.args.get('id')
-        if userid!=str(payload['id']):
+        if not check_token(userid,token):
             resp['status']=1005
             resp['err']='身份验证失效'
             return Response(json.dumps(resp),mimetype='application/json');
@@ -73,6 +85,7 @@ def profile_pic():
             resp['status']=1008
             resp['err']='图片不合法，仅支持jpg, jpeg, png'             
         return Response(json.dumps(resp),mimetype='application/json')
+
 #GET:查询用户的关注 POST:添加用户的关注
 @bp.route('/following',methods=['GET','POST'])
 def following():
@@ -92,34 +105,30 @@ def following():
     elif request.method=='POST':
         resp={'status':2000,'err':None}
         token=request.headers.get('ORGtoken')
-        payload=JWT.verify_token(token)
-        if not payload:
+        data=request.get_data(as_text=True)
+        data=json.loads(data)
+        userid=data['userid']
+        followid=data['followid']
+        if not check_token(userid,token):
             resp['status']=1005
             resp['err']='身份验证失效'
-        else:
-            data=request.get_data(as_text=True)
-            data=json.loads(data)
-            userid=data['userid']
-            followid=data['followid']
-            if str(payload['id'])!=userid:
-                resp['status']=1005
-                resp['err']='身份验证失效'
-            else:                
-                con,cur=db.connect_db(DictCursor)
-                sql='''
-                    INSERT INTO follow (userid,followerid,ftime)
-                    VALUES (%s, %s, CURRENT_TIMESTAMP)
-                '''
-                pram=(followid,userid)
-                try:
-                    cur.execute(sql,pram)
-                    con.commit()
-                except Exception as e:
-                    print(e)
-                    con.rollback()
-                    resp['status']=1000
-                    resp['err']='未知错误，请重试'
+        else:                
+            con,cur=db.connect_db(DictCursor)
+            sql='''
+                INSERT INTO follow (userid,followerid,ftime)
+                VALUES (%s, %s, CURRENT_TIMESTAMP)
+            '''
+            pram=(followid,userid)
+            try:
+                cur.execute(sql,pram)
+                con.commit()
+            except Exception as e:
+                print(e)
+                con.rollback()
+                resp['status']=1000
+                resp['err']='未知错误，请重试'
         return Response(json.dumps(resp),mimetype='application/json')          
+
 #GET:查询用户的被关注
 @bp.route('/follower')
 def follower():
@@ -136,6 +145,7 @@ def follower():
         res=cur.fetchall()
         resp={'data':res}
         return Response(json.dumps(resp),mimetype='application/json')    
+
 #GET:获取所有用户的博客
 @bp.route('/all_blog')
 def all_blog():
@@ -151,6 +161,7 @@ def all_blog():
         i['ptime']=i['ptime'].strftime('%Y-%m-%d %H:%M:%S')
     resp={'data':res}
     return Response(json.dumps(resp),mimetype='application/json')
+
 #GET:获取用户个人的博客 POST:发布用户的博客
 @bp.route('/person_blog',methods=['GET','POST'])
 def person_blog():
@@ -172,37 +183,33 @@ def person_blog():
     elif request.method=='POST':
         resp={'status':2000,'err':None}
         token=request.headers.get('ORGtoken')
-        payload=JWT.verify_token(token)
-        if not payload:
+        data=request.get_data(as_text=True)
+        data=json.loads(data)
+        userid=data['userid']
+        topic=data['topic']
+        content=data['content']
+        college=data['college']
+        typ=data['type']
+        if not check_token(userid,token):
             resp['status']=1005
             resp['err']='身份验证失效'
-        else:
-            data=request.get_data(as_text=True)
-            data=json.loads(data)
-            userid=data['userid']
-            topic=data['topic']
-            content=data['content']
-            college=data['college']
-            typ=data['type']
-            if str(payload['id'])!=userid:
-                resp['status']=1005
-                resp['err']='身份验证失效'
-            else:                
-                con,cur=db.connect_db(DictCursor)
-                sql='''
-                    INSERT INTO blog (userid,topic,content,type,college,ptime)
-                    VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
-                '''
-                pram=(userid,topic,content,typ,college)
-                try:
-                    cur.execute(sql,pram)
-                    con.commit()
-                except Exception as e:
-                    print(e)
-                    con.rollback()
-                    resp['status']=1000
-                    resp['err']='未知错误，请重试'
+        else:                
+            con,cur=db.connect_db(DictCursor)
+            sql='''
+                INSERT INTO blog (userid,topic,content,type,college,ptime)
+                VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+            '''
+            pram=(userid,topic,content,typ,college)
+            try:
+                cur.execute(sql,pram)
+                con.commit()
+            except Exception as e:
+                print(e)
+                con.rollback()
+                resp['status']=1000
+                resp['err']='未知错误，请重试'
         return Response(json.dumps(resp),mimetype='application/json') 
+
 #GET:获取用户关注人的博客
 @bp.route('/follow_blog')
 def follow_blog():
@@ -222,3 +229,54 @@ def follow_blog():
             i['ptime']=i['ptime'].strftime('%Y-%m-%d %H:%M:%S')
         resp={'data':res}
         return Response(json.dumps(resp),mimetype='application/json')
+
+#GET:获取博客的评论 POST:添加博客的评论
+@bp.route('/blog_comment',methods=['GET','POST'])
+def blog_comment():
+    if request.method=='GET':
+        blogid=request.args.get('id')
+        con,cur=db.connect_db(DictCursor)
+        sql='''
+            SELECT * FROM comment 
+            WHERE blogid = %s
+            ORDER BY ctime DESC
+        '''
+        pram=(blogid,)
+        cur.execute(sql,pram)
+        res=cur.fetchall()
+        for i in res:
+            i['ctime']=i['ctime'].strftime('%Y-%m-%d %H:%M:%S')
+        resp={'data':res}
+        return Response(json.dumps(resp),mimetype='application/json')
+    elif request.method=='POST':
+        resp={'status':2000,'err':None}
+        token=request.headers.get('ORGtoken')
+        data=request.get_data(as_text=True)
+        data=json.loads(data)
+        userid=data['userid']
+        blogid=data['blogid']
+        content=data['content']
+        if not check_token(userid,token):
+            resp['status']=1005
+            resp['err']='身份验证失效'
+            return Response(json.dumps(resp),mimetype='application/json')
+        con,cur=db.connect_db(DictCursor)
+        sql='''
+            INSERT INTO comment (userid,blogid,content,ctime)
+            VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
+        '''
+        pram=(userid,blogid,content)
+        try:
+            cur.execute(sql,pram)
+            con.commit()
+        except Exception as e:
+            print(e)
+            con.rollback()
+            resp['status']=1000
+            resp['err']='未知错误'
+        return Response(json.dumps(resp),mimetype='application/json')
+
+#GET:获取用户的评论
+@bp.route('/user_comment')
+def user_comment():
+    

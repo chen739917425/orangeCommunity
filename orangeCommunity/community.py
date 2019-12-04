@@ -149,18 +149,41 @@ def follower():
 #GET:获取所有用户的博客
 @bp.route('/all_blog')
 def all_blog():
-    con,cur=db.connect_db(DictCursor)
-    sql='''
-        SELECT blog.*,user.username,user.profile_pic
-        FROM blog INNER JOIN user ON blog.userid=user.id 
-        ORDER BY blog.ptime DESC LIMIT 100
-    '''
-    cur.execute(sql)
-    res=cur.fetchall()
-    for i in res:
-        i['ptime']=i['ptime'].strftime('%Y-%m-%d %H:%M:%S')
-    resp={'data':res}
-    return Response(json.dumps(resp),mimetype='application/json')
+    if request.method=='GET':
+        typ=request.args.get('type')
+        college=request.args.get('college')
+        order=request.args.get('order')
+        con,cur=db.connect_db(DictCursor)
+        sql='SELECT blog.*,user.username,user.profile_pic '
+        if order=='comment':
+            sql+='''
+                FROM blog INNER JOIN user ON blog.userid=user.id 
+                LEFT OUTER JOIN comment ON blog.id=comment.blogid
+                WHERE 1 
+            '''        
+        else:
+            sql+=' FROM blog INNER JOIN user ON blog.userid=user.id WHERE 1 '
+        pram=[]
+        if college!='all':
+            sql+='and blog.college = %s'
+            pram.append(college)
+        if typ!='all':
+            sql+='and blog.type = %s'
+            pram.append(typ)
+        if order=='comment':
+            sql+='''
+                GROUP BY blog.id
+                ORDER BY COUNT(comment.id) DESC
+            '''        
+        else:
+            sql+=' ORDER BY blog.ptime DESC '
+        pram=tuple(pram)
+        cur.execute(sql,pram)
+        res=cur.fetchall()
+        for i in res:
+            i['ptime']=i['ptime'].strftime('%Y-%m-%d %H:%M:%S')
+        resp={'data':res}
+        return Response(json.dumps(resp),mimetype='application/json')
 
 #GET:获取用户个人的博客 POST:发布用户的博客
 @bp.route('/person_blog',methods=['GET','POST'])
@@ -210,7 +233,7 @@ def person_blog():
                 resp['err']='未知错误，请重试'
         return Response(json.dumps(resp),mimetype='application/json') 
 
-#GET:获取用户关注人的博客
+#GET:获取用户所有关注人的博客
 @bp.route('/follow_blog')
 def follow_blog():
     if request.method=='GET':
@@ -279,4 +302,14 @@ def blog_comment():
 #GET:获取用户的评论
 @bp.route('/user_comment')
 def user_comment():
-    
+    if request.method=='GET':
+        userid=request.args.get('id')
+        con,cur=db.connect_db(DictCursor)
+        sql='SELECT * FROM comment WHERE userid = %s'
+        pram=(userid,)
+        cur.execute(sql,pram)
+        res=cur.fetchall()
+        for i in res:
+            i['ctime']=i['ctime'].strftime('%Y-%m-%d %H:%M:%S')
+        resp={'data':res}
+        return Response(json.dumps(resp),mimetype='application/json')

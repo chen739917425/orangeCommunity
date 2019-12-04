@@ -12,6 +12,9 @@
   font-size: 15px;
   font-family: 微软雅黑; 
 }
+.text-title {
+  color: white;
+}
 .text-boder{
   background:transparent;
   border:2px solid #999;
@@ -216,4 +219,8 @@ canvas{
   background: #fff;
   border-color: #ddd;
   cursor: not-allowed;
+}
+
+#body-community{
+  background-color: bisque;
 }

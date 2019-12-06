@@ -16,7 +16,7 @@ def check_token(userid,token):
     return True
 
 #定向社区首页
-@bp.route('/',methods=['GET','POST'])
+@bp.route('/')
 def community():
     return render_template('community/index.html')
 
@@ -24,6 +24,11 @@ def community():
 @bp.route('/person')
 def person():
     return render_template('community/person.html')
+
+#定向博客发布页
+@bp.route('/poster')
+def poster():
+    return render_template('community/poster.html')
 
 #GET:获取用户个人信息
 @bp.route('/profile')
@@ -49,7 +54,7 @@ def profile_pic():
         userid=request.args.get('id')
         if not check_token(userid,token):
             resp['status']=1005
-            resp['err']='身份验证失效'
+            resp['err']='身份验证失效，请重新登录'
             return Response(json.dumps(resp),mimetype='application/json');
         if 'file' not in request.files:
             resp['status']=1006
@@ -111,7 +116,7 @@ def following():
         followid=data['followid']
         if not check_token(userid,token):
             resp['status']=1005
-            resp['err']='身份验证失效'
+            resp['err']='身份验证失效，请重新登录'
         else:                
             con,cur=db.connect_db(DictCursor)
             sql='''
@@ -215,7 +220,7 @@ def person_blog():
         typ=data['type']
         if not check_token(userid,token):
             resp['status']=1005
-            resp['err']='身份验证失效'
+            resp['err']='身份验证失效,请重新登录'
         else:                
             con,cur=db.connect_db(DictCursor)
             sql='''
@@ -281,7 +286,7 @@ def blog_comment():
         content=data['content']
         if not check_token(userid,token):
             resp['status']=1005
-            resp['err']='身份验证失效'
+            resp['err']='身份验证失效，请重新登录'
             return Response(json.dumps(resp),mimetype='application/json')
         con,cur=db.connect_db(DictCursor)
         sql='''

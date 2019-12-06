@@ -72,6 +72,7 @@
 	<script type="text/javascript">
 		var blog=[];
 		var type='all',college='all',order='time';
+		var pS=10;
 		function show_page(idx){
 			if (!blog.length){
 				alert('无符合条件的结果');
@@ -107,8 +108,8 @@
 			get_blog();
 		});
 		$("#page").jqPaginator({
-			totalCounts: 78,
-			pageSize:10,
+			totalCounts: blog.length,
+			pageSize:pS,
 			visiblePages: 10,
 			currentPage: 1,
 			first: '<li class="first"><a href="javascript:void(0);">First<\/a><\/li>',

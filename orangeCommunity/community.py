@@ -170,10 +170,10 @@ def all_blog():
             sql+=' FROM blog INNER JOIN user ON blog.userid=user.id WHERE 1 '
         pram=[]
         if college!='all':
-            sql+='and blog.college = %s'
+            sql+=" and (blog.college = %s OR blog.college = 'all') "
             pram.append(college)
         if typ!='all':
-            sql+='and blog.type = %s'
+            sql+=' and blog.type = %s '
             pram.append(typ)
         if order=='comment':
             sql+='''

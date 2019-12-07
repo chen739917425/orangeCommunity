@@ -15,9 +15,23 @@
 .text-title {
   color: white;
 }
+.text-info{
+  font-size:19px;
+  font-family: 微软雅黑; 
+  color: rgb(85, 177, 230);
+}
 .text-boder{
   background:transparent;
   border:2px solid #999;
+}
+.div-user{
+  position: absolute;
+  left:85%;
+  width: 20%;
+}
+.div-blog{
+  position: absolute;
+  left:20%;
 }
 .cube-container {
   width: 100vw;

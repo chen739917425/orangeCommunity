@@ -11,68 +11,125 @@
 </head>
 
 <body id='body-community'>
-	<div class='text-title'>
-		<img height='15%' width='45%' src="{{ url_for('static',filename='img/community.jpg') }}" alt="logo" class="mb-4">
-		<h1>Orange Community</h1>
+	<div class='div-user'>
+		<a id='user_status' class='text-info' href="javascript:void(0);"></a>&nbsp
+		<a id='post_blog' class='text-info' hidden="hidden" href="javascript:void(0);">发布博客</a>&nbsp
+		<a id='logout' class='text-info' hidden="hidden" href="javascript:void(0);">注销</a>
+		<br>
+		<img id='profile_pic' style='height:200px;width:200px' src='{{ url_for('static',filename='img/default.jpg') }}'>
 	</div>
-	<br>
-	<div id='blog-select'>
-		<label>面向学院: 
-			<select id="college">
-				<option selected>all</option>
-				<option>电气工程与自动化学院</option>
-				<option>机械工程及自动化学院</option>
-				<option>数学与计算机科学学院</option>
-				<option>土木工程学院</option>
-				<option>环境与资源学院</option>
-				<option>生物科学与工程学院</option>
-				<option>外国语学院</option>
-				<option>物理与信息工程学院</option>
-				<option>建筑与城乡规划学院</option>
-				<option>紫金矿业学院</option>
-				<option>材料科学与工程学院</option>
-				<option>厦门工艺美术学院</option>
-				<option>法学院</option>
-				<option>至诚学院</option>
-				<option>海洋学院</option>
-				<option>应用技术与继续教育学院</option>
-				<option>马克思主义学院</option>
-				<option>人文社会科学学院</option>
-				<option>经济与管理学院</option>
-				<option>石油化工学院</option>
-				<option>化学学院</option>
-				<option>福州大学梅努斯国际工程学院</option>
-			</select>
-		</label>
+	<div class='div-blog'>
+		<div class='text-title'>
+			<img height='100px' width='100%' src="{{ url_for('static',filename='img/community.jpg') }}" alt="logo" class="mb-4">
+			<h1>Orange Community</h1>
+		</div>
 		<br>
-		<label>博客类型: 
-			<input type='radio' name='type' value='all' checked='checked'>all
-			<input type='radio' name='type' value='问题求助'>问题求助
-			<input type='radio' name='type' value='失物招领'>失物招领
-			<input type='radio' name='type' value='寻物启示'>寻物启示
-			<input type='radio' name='type' value='物品租借'>物品租借
-			<input type='radio' name='type' value='日常动态分享'>日常动态分享
-		</label>
-		<br>
-		<label>显示顺序: 
-			<input type='radio' name='order' value='time' checked='checked'>按发布时间
-			<input type='radio' name='order' value='comment'>按评论数
-		</label>
-		<br>
-		<label>按条件筛选查询</label>
-		<button id='blog_select' class='button-upload'>查询</button>
+		<div id='blog-select'>
+			<label>面向学院: 
+				<select id="college">
+					<option selected>all</option>
+					<option>电气工程与自动化学院</option>
+					<option>机械工程及自动化学院</option>
+					<option>数学与计算机科学学院</option>
+					<option>土木工程学院</option>
+					<option>环境与资源学院</option>
+					<option>生物科学与工程学院</option>
+					<option>外国语学院</option>
+					<option>物理与信息工程学院</option>
+					<option>建筑与城乡规划学院</option>
+					<option>紫金矿业学院</option>
+					<option>材料科学与工程学院</option>
+					<option>厦门工艺美术学院</option>
+					<option>法学院</option>
+					<option>至诚学院</option>
+					<option>海洋学院</option>
+					<option>应用技术与继续教育学院</option>
+					<option>马克思主义学院</option>
+					<option>人文社会科学学院</option>
+					<option>经济与管理学院</option>
+					<option>石油化工学院</option>
+					<option>化学学院</option>
+					<option>福州大学梅努斯国际工程学院</option>
+				</select>
+			</label>
+			<br>
+			<label>博客类型: 
+				<input type='radio' name='type' value='all' checked='checked'>all
+				<input type='radio' name='type' value='问题求助'>问题求助
+				<input type='radio' name='type' value='失物招领'>失物招领
+				<input type='radio' name='type' value='寻物启示'>寻物启示
+				<input type='radio' name='type' value='物品租借'>物品租借
+				<input type='radio' name='type' value='日常动态分享'>日常动态分享
+			</label>
+			<br>
+			<label>显示顺序: 
+				<input type='radio' name='order' value='time' checked='checked'>按发布时间
+				<input type='radio' name='order' value='comment'>按评论数
+			</label>
+			<br>
+			<label>按条件筛选查询</label>
+			<button id='blog_select' class='button-upload'>查询</button>
+		</div>
+		<div>
+			
+			<ul id="page" class="pagination"></ul>
+		</div>		
 	</div>
-	<div>
-		
-		<ul id="page" class="pagination"></ul>
-	</div>		
-
 	<script type="text/javascript" src="{{ url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script>
 	<script type="text/javascript" src="{{ url_for('static',filename='js/jq-paginator.js') }}"></script>
 	<script type="text/javascript">
 		var blog=[];
 		var type='all',college='all',order='time';
-		var pS=10;
+		var pS=5;
+		function show_user(){
+			$.ajax({
+				url:'http://127.0.0.1:5000/auth/verify',
+				type:'POST',
+				headers:{
+					'Content-Type':'application/json',
+					'ORGtoken':localStorage.getItem('ORGtoken')					
+				},
+				data:JSON.stringify({
+					userid:localStorage.getItem('ORGid')
+				}),
+				success:function(data){
+					if (data['status']!=2000){
+						$('#user_status').on('click',function(){
+							window.location.href='http://127.0.0.1:5000';
+						});
+						$('#user_status').text('登录');
+						$('#post_blog').hide();
+						$('#logout').hide();
+					}
+					else{
+						$('#user_status').on('click',function(){
+							window.location.href='http://127.0.0.1:5000/community/person';
+						});
+						$('#user_status').text(data['data']['username']);
+						$('#profile_pic').attr('src','/'+data['data']['profile_pic']);
+						$('#post_blog').on('click',function(){
+							window.location.href='http://127.0.0.1:5000/community/poster';
+						});
+						$('#post_blog').show();
+						$('#logout').on('click',function(){
+							localStorage.removeItem('ORGid');
+							localStorage.removeItem('ORGtoken');
+							window.location.href='http://127.0.0.1:5000/community';
+						});
+						$('#logout').show();
+					}
+				},
+				error:function(data){
+					console.log(data);
+					$('#user_status').on('click',function(){
+						window.location.href='http://127.0.0.1:5000';
+					});
+					$('#user_status').text('登录');
+					$('#post_blog').hide();
+					$('#logout').hide();
+				}
+			});
+		}
 		function show_page(idx){
 			if (!blog.length){
 				alert('无符合条件的结果');
@@ -89,8 +146,20 @@
 				dataType:'json',
 				success:function(data){
 					blog=data['data'];
-					console.log(blog);
-					show_page(1);
+					$("#page").jqPaginator({
+						totalCounts: blog.length,
+						pageSize:pS,
+						visiblePages: 10,
+						currentPage: 1,
+						first: '<li class="first"><a href="javascript:void(0);">First<\/a><\/li>',
+						prev: '<li class="prev"><a href="javascript:void(0);">Previous<\/a><\/li>',
+						next: '<li class="next"><a href="javascript:void(0);">Next<\/a><\/li>',
+						last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
+						page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
+						onPageChange: function(n) {
+							//do...
+						}
+      				});
 				},
 				error:function(data,ty,err){
 					console.log(ty);
@@ -99,28 +168,17 @@
 				}
 			});
 		}
+		$(document).ready(function(){
+			show_user();
+			get_blog();
 
-		$(document).ready(get_blog(1));
+		});
 		$('#blog_select').on('click',function(){
 			college=$("#college").find("option:selected").text();
 			type=$("input[name='type']:checked").val();
 			order=$("input[name='order']:checked").val();
 			get_blog();
 		});
-		$("#page").jqPaginator({
-			totalCounts: blog.length,
-			pageSize:pS,
-			visiblePages: 10,
-			currentPage: 1,
-			first: '<li class="first"><a href="javascript:void(0);">First<\/a><\/li>',
-			prev: '<li class="prev"><a href="javascript:void(0);">Previous<\/a><\/li>',
-			next: '<li class="next"><a href="javascript:void(0);">Next<\/a><\/li>',
-			last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
-			page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
-			onPageChange: function(n) {
-				//do...
-			}
-      });
 	</script>
 </body>
 

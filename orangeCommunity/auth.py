@@ -5,6 +5,30 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from . import db, JWT
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+#验证登陆态
+@bp.route('/verify',methods=['POST'])
+def verify():
+    if request.method=='POST':
+        data=request.get_data(as_text=True)
+        data=json.loads(data)
+        userid=data['userid']
+        token=request.headers.get('ORGtoken')
+        payload=JWT.verify_token(token)
+        resp={'status':2000,'data':None}
+        if not payload:
+            resp['status']=1005
+            return Response(json.dumps(resp),mimetype='application/json')
+        if userid!=str(payload['id']):
+            resp['status']=1005
+            return Response(json.dumps(resp),mimetype='application/json')
+        con,cur=db.connect_db()
+        sql='SELECT username,profile_pic FROM user WHERE id = %s'
+        pram=(userid,)
+        cur.execute(sql,pram)
+        res=cur.fetchone()
+        resp['data']={'username':res[0],'profile_pic':res[1]}
+        return Response(json.dumps(resp),mimetype='application/json')
+
 @bp.route('/register',methods=['POST'])
 def register():
     if (request.method=='POST'):

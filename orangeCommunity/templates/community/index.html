@@ -11,6 +11,9 @@
 </head>
 
 <body id='body-community'>
+	<div>
+		<img class='pic-community' src='\static\img\community.gif'>
+	</div>
 	<div class='div-user'>
 		<a id='user_status' class='text-info' href="javascript:void(0);"></a>&nbsp
 		<a id='post_blog' class='text-info' hidden="hidden" href="javascript:void(0);">发布博客</a>&nbsp
@@ -20,8 +23,8 @@
 	</div>
 	<div class='div-blog'>
 		<div class='text-title'>
-			<img height='100px' width='100%' src="{{ url_for('static',filename='img/community.jpg') }}" alt="logo" class="mb-4">
 			<h1>Orange Community</h1>
+			<h2>橙子社区</h2>
 		</div>
 		<br>
 		<div id='blog-select'>
@@ -70,8 +73,10 @@
 			<label>按条件筛选查询</label>
 			<button id='blog_select' class='button-upload'>查询</button>
 		</div>
+		<br>
 		<div>
-			
+			<div id=blog>
+			</div>		
 			<ul id="page" class="pagination"></ul>
 		</div>		
 	</div>
@@ -81,6 +86,9 @@
 		var blog=[];
 		var type='all',college='all',order='time';
 		var pS=5;
+		function location_blog(id){
+			window.location.href='http://127.0.0.0.1:5000/community/blog?id='+id;
+		}
 		function show_user(){
 			$.ajax({
 				url:'http://127.0.0.1:5000/auth/verify',
@@ -106,6 +114,8 @@
 							window.location.href='http://127.0.0.1:5000/community/person';
 						});
 						$('#user_status').text(data['data']['username']);
+						if (!data['data']['profile_pic'])
+							data['data']['profile_pic']='static/img/default.jpg';
 						$('#profile_pic').attr('src','/'+data['data']['profile_pic']);
 						$('#post_blog').on('click',function(){
 							window.location.href='http://127.0.0.1:5000/community/poster';
@@ -130,12 +140,28 @@
 				}
 			});
 		}
-		function show_page(idx){
-			if (!blog.length){
-				alert('无符合条件的结果');
-			}
+		function show_page(n){
+			if (!blog.length)
+				$('#blog').html("<p class='content'>无符合条件的结果</p>");
 			else{
-
+				var L=(n-1)*pS, R=n*pS<blog.length?n*pS-1:blog.length-1;
+				$('#blog').html('');
+				for (var i=L;i<=R;++i){
+					var id=blog[i]['id'];
+					var topic=blog[i]['topic'];
+					var college=blog[i]['college'];
+					var content=blog[i]['content']; 
+					var profile_pic='\\'+blog[i]['profile_pic'];
+					var ptime=blog[i]['ptime'];
+					var type=blog[i]['type'];
+					var username=blog[i]['username'];
+					var item="<div onclick='location_blog(" + id + ")' class='blog-item'>";
+					item+="<h3 style='text-align: center;'>"+topic+"</h3>"; 
+					item+="<p class='content'>"+content+"</p>";
+					item+="<label style='float:right'>" + college + "  " + type + "  " + "<img height='30px' width='30px' src='" + profile_pic + "'>" + username + "  " + ptime + "</label><br><br>";
+					item+="</div><br>";
+					$('#blog').append(item);
+				}
 			}
 		}		
 		function get_blog(){
@@ -147,7 +173,7 @@
 				success:function(data){
 					blog=data['data'];
 					$("#page").jqPaginator({
-						totalCounts: blog.length,
+						totalCounts: blog.length?blog.length:1,
 						pageSize:pS,
 						visiblePages: 10,
 						currentPage: 1,
@@ -157,7 +183,7 @@
 						last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
 						page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
 						onPageChange: function(n) {
-							//do...
+							show_page(n);
 						}
       				});
 				},
@@ -171,7 +197,6 @@
 		$(document).ready(function(){
 			show_user();
 			get_blog();
-
 		});
 		$('#blog_select').on('click',function(){
 			college=$("#college").find("option:selected").text();

@@ -11,6 +11,9 @@
 </head>
 
 <body id='body-community'>
+	<div >
+		<img class='pic-community' src='\static\img\community.gif'>
+	</div>
 	<div class='div-user'>
 		<a id='user_status' class='text-info' href="javascript:void(0);"></a>&nbsp
 		<a id='index' class='text-info' href="http://127.0.0.1:5000/community">社区首页</a>
@@ -20,18 +23,17 @@
 	</div>
 	<div class='div-blog'>
 		<div class='text-title' position: relative;>
-			<img height='100px' width='100%' src="{{ url_for('static',filename='img/community.jpg') }}" alt="logo" class="mb-4">
 			<h1>Orange Community</h1>
 			<h2>博客发布</h2>
 		</div>
 		<br>
 		<div class='text-font'>
 			<div>
-				<label>标题:</label> <input id='topic' type='text' placeholder="标题不超过20字"" style="width:80%"\>
+				<label>标题:</label> <input id='topic' type='text' placeholder="标题不超过100字"" style="width:80%"\>
 			</div>
 			<br>
 			<div>
-				<label style="position:relative;bottom:500px">内容:</label> <textarea id='content' cols="80" rows="25" placeholder="内容不超过500字"></textarea>
+				<label style="position:relative;bottom:500px">内容:</label> <textarea id='content' cols="80" rows="25" placeholder="内容不超过3000字"></textarea>
 			</div>
 			<br>
 			<div id='blog-select'>
@@ -141,7 +143,8 @@
 				success:function(data){
 					if (data['status']!=2000){
 						alert(data['err']);
-						window.location.href = 'http://127.0.0.1:5000';
+						if (data['status']==1005)
+							window.location.href = 'http://127.0.0.1:5000';
 					}
 					else{
 						alert('发布成功');

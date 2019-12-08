@@ -66,7 +66,7 @@ def register():
                 print(e)
                 con.rollback()
                 resp['status']=1000
-                resp['err']='未知错误，请重试'
+                resp['err']='服务器内部错误，请重试'
         return Response(json.dumps(resp),mimetype='application/json')
 @bp.route('/login',methods=['POST'])
 def login():

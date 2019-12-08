@@ -85,7 +85,7 @@ def profile_pic():
                 print(e)
                 con.rollback()
                 resp['status']=1000
-                resp['err']='未知错误'
+                resp['err']='服务器内部错误'
         else:
             resp['status']=1008
             resp['err']='图片不合法，仅支持jpg, jpeg, png'             
@@ -131,7 +131,7 @@ def following():
                 print(e)
                 con.rollback()
                 resp['status']=1000
-                resp['err']='未知错误，请重试'
+                resp['err']='服务器内部错误，请重试'
         return Response(json.dumps(resp),mimetype='application/json')          
 
 #GET:查询用户的被关注
@@ -235,7 +235,7 @@ def person_blog():
                 print(e)
                 con.rollback()
                 resp['status']=1000
-                resp['err']='未知错误，请重试'
+                resp['err']='服务器内部错误，请重试'
         return Response(json.dumps(resp),mimetype='application/json') 
 
 #GET:获取用户所有关注人的博客
@@ -301,7 +301,7 @@ def blog_comment():
             print(e)
             con.rollback()
             resp['status']=1000
-            resp['err']='未知错误'
+            resp['err']='服务器内部错误'
         return Response(json.dumps(resp),mimetype='application/json')
 
 #GET:获取用户的评论

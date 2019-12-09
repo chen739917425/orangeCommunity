@@ -21,14 +21,26 @@ def community():
     return render_template('community/index.html')
 
 #定向社区个人页
-@bp.route('/person')
+@bp.route('/person_detail')
 def person():
-    return render_template('community/person.html')
+    userid=request.args.get('id')
+    if not userid:
+        return render_template('community/index.html')
+    return render_template('community/person_detail.html',userid=userid)
 
 #定向博客发布页
 @bp.route('/poster')
 def poster():
     return render_template('community/poster.html')
+
+#定向博客详情页
+@bp.route('/blog_detail')
+def blog_detail():
+    blogid=request.args.get('id')
+    if not blogid:
+        return render_template('community/index.html')    
+    return render_template('community/blog_detail.html',blogid=blogid)
+
 
 #GET:获取用户个人信息
 @bp.route('/profile')
@@ -150,6 +162,24 @@ def follower():
         res=cur.fetchall()
         resp={'data':res}
         return Response(json.dumps(resp),mimetype='application/json')    
+
+#GET:获取博客详情信息
+@bp.route('/blog')
+def blog():
+    if request.method=='GET':
+        blogid=request.args.get('id')
+        con,cur=db.connect_db(DictCursor)
+        sql='''
+            SELECT blog.*, user.username, user.profile_pic
+            FROM blog INNER JOIN user ON blog.userid=user.id 
+            WHERE blog.id = %s
+        '''
+        pram=(blogid,)
+        cur.execute(sql,pram)
+        res=cur.fetchone()
+        res['ptime']=res['ptime'].strftime('%Y-%m-%d %H:%M:%S')
+        resp={'data':res}
+        return Response(json.dumps(resp),mimetype='application/json')
 
 #GET:获取所有用户的博客
 @bp.route('/all_blog')

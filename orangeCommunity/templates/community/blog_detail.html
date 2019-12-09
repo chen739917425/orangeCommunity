@@ -1,0 +1,126 @@
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>OrangeCommunity</title>
+	<link rel="icon" href="{{ url_for('static',filename='img/logo.ico') }}" type="images/x-ico" />
+	<link rel="stylesheet" type="text/css" href="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+</head>
+
+<body id='body-community'>
+	<div >
+		<img class='pic-community' src='\static\img\community.gif'>
+	</div>
+	<div class='div-user'>
+		<a id='user_status' class='text-info' href="javascript:void(0);"></a>&nbsp
+		<a id='index' class='text-info' href="http://127.0.0.1:5000/community">社区首页</a>
+		<a id='logout' class='text-info' hidden="hidden" href="javascript:void(0);">注销</a>
+		<br>
+		<img id='profile_pic' style='height:200px;width:200px' src='{{ url_for('static',filename='img/default.jpg') }}'>
+	</div>
+	<div class='div-blog'>
+		<div class='text-title' position: relative;>
+			<h1>Orange Community</h1>
+		</div>
+		<br>
+		<div class='text-font'>
+			<h1 id='topic' style="text-align: center;"></h1>
+			<br>
+			<p id='content' class='content-detail'></p>
+			<br>
+			<label id='info' style='float:right'></label>
+			<br>
+			<br>
+			<label style='float:right'><img id='poster_pic' width='50px' height='50px' ><a id='poster' style='font-size: 25px;' href="javascript:void(0);"></a></label>
+			<br>
+		</div>		
+	</div>
+	<script type="text/javascript" src="{{ url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script>
+    <script type="text/javascript">
+        var blogid = {{ blogid }};
+		function show_blog(){
+			$.ajax({
+				url:'http://127.0.0.1:5000/community/blog?id='+blogid,
+				type:'GET',
+				success:function(data){
+					data=data['data'];
+					var topic=data['topic'];
+					var content=data['content'].replace(/\r\n/g, '<br/>').replace(/\n/g, '<br/>').replace(/\s/g, ' ');
+					var type=data['type'];
+					var college=data['college'];
+					var ptime=data['ptime'];
+					var username=data['username'];
+					var userid=data['userid'];
+					var profile_pic='\\'+data['profile_pic'];
+					$('#topic').text(topic);
+					$('#content').empty();
+					$('#content').append(content);
+					$('#info').text(college+'  '+type+'  '+ptime);
+					$('#poster_pic').attr('src',profile_pic);
+					$('#poster').text(username);
+					$('#poster').on('click',function(){
+						window.open('http://127.0.0.1:5000/community/person_detail?id='+userid);
+					});
+				},
+				error:function(data,ty,err){
+					console.log(data);
+					console.log(ty);
+					console.log(err);
+				}
+			});
+		}
+		function show_user(){
+			$.ajax({
+				url:'http://127.0.0.1:5000/auth/verify',
+				type:'POST',
+				headers:{
+					'Content-Type':'application/json',
+					'ORGtoken':localStorage.getItem('ORGtoken')					
+				},
+				data:JSON.stringify({
+					userid:localStorage.getItem('ORGid')
+				}),
+				success:function(data){
+					if (data['status']!=2000){
+						$('#user_status').on('click',function(){
+							window.location.href='http://127.0.0.1:5000';
+						});
+						$('#user_status').text('登录');
+						$('#logout').hide();
+					}
+					else{
+						$('#user_status').on('click',function(){
+							window.location.href='http://127.0.0.1:5000/community/person';
+						});
+						$('#user_status').text(data['data']['username']);
+						$('#profile_pic').attr('src','/'+data['data']['profile_pic']);
+						$('#logout').on('click',function(){
+							localStorage.removeItem('ORGid');
+							localStorage.removeItem('ORGtoken');
+							window.location.href='http://127.0.0.1:5000/community';
+						});
+						$('#logout').show();
+					}
+				},
+				error:function(data){
+					console.log(data);
+					$('#user_status').on('click',function(){
+						window.location.href='http://127.0.0.1:5000';
+					});
+					$('#user_status').text('登录');
+					$('#logout').hide();
+				}
+			});
+		}
+        $(document).ready(function(){
+			show_user();
+			show_blog();
+		});
+
+	</script>
+</body>
+
+</html>

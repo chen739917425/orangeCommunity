@@ -16,7 +16,7 @@
 	</div>
 	<div class='div-user'>
 		<a id='user_status' class='text-info' href="javascript:void(0);"></a>&nbsp
-		<a id='post_blog' class='text-info' hidden="hidden" href="javascript:void(0);">发布博客</a>&nbsp
+		<a id='post_blog' class='text-info' hidden="hidden" href="javascript:void(0);">发布</a>&nbsp
 		<a id='logout' class='text-info' hidden="hidden" href="javascript:void(0);">注销</a>
 		<br>
 		<img id='profile_pic' style='height:200px;width:200px' src='{{ url_for('static',filename='img/default.jpg') }}'>
@@ -87,7 +87,7 @@
 		var type='all',college='all',order='time';
 		var pS=5;
 		function location_blog(id){
-			window.location.href='http://127.0.0.0.1:5000/community/blog?id='+id;
+			window.open('http://127.0.0.1:5000/community/blog_detail?id='+id);
 		}
 		function show_user(){
 			$.ajax({

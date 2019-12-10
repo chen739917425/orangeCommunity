@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
 </head>
 
-<body id='body-community'>
+<body class='body-community'>
 	<div >
 		<img class='pic-community' src='\static\img\community.gif'>
 	</div>
@@ -38,9 +38,84 @@
 			<br>
 		</div>		
 	</div>
+	<br>
+	<br>
+	<div class='div-comment'>
+		<label>评论</label>
+		<div id='comment'>
+		</div>		
+		<ul id="page" class="pagination"></ul>
+		<br>
+		<div>
+			<span id='msg'>发表评论</span>
+			<textarea id='comment_content' cols="115" rows="5" placeholder="评论不超过500字"></textarea>
+		</div>		
+		<br>
+		<button id='post_comment' class='button-upload'>评论</button>
+		<br>
+		<br>
+	</div>	
 	<script type="text/javascript" src="{{ url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script>
-    <script type="text/javascript">
-        var blogid = {{ blogid }};
+	<script type="text/javascript" src="{{ url_for('static',filename='js/jq-paginator.js') }}"></script>
+	<script type="text/javascript">
+		var blogid = {{ blogid }};
+		var comment;
+		var pS=5;
+		function localtion_person(id){
+			window.open('http://127.0.0.1:5000/community/person_detail?id='+id);
+		}
+		function show_comment(n){
+			if (!comment.length)
+				$('#comment').html("<p class='content'>暂无评论</p>");
+			else{
+				var L=(n-1)*pS, R=n*pS<comment.length?n*pS-1:comment.length-1;
+				$('#comment').html('');
+				for (var i=L;i<=R;++i){
+					var content=comment[i]['content'].replace(/\r\n/g, '<br/>').replace(/\n/g, '<br/>').replace(/\s/g, ' '); 
+					var ctime=comment[i]['ctime'];
+					var userid=comment[i]['userid'];
+					var username=comment[i]['username'];
+					if (!comment[i]['profile_pic'])
+						comment[i]['profile_pic']='static/img/default.jpg';	
+					var profile_pic='\\'+comment[i]['profile_pic'];
+					var item="<div class='comment-item'>";
+					item+="<p class='text-font'>"+content+"</p>";
+					item+="<label style='float:right'>" + "<img height='30px' width='30px' src='" + profile_pic + "'>";
+					item+="<a herf='javascript:void(0);' onclick='localtion_person(" + userid + ")'>" + username + "</a>  " + ctime + "</label><br><br>";
+					item+="</div><br>";
+					$('#comment').append(item);
+				}
+			}
+		}
+		function get_comment(){
+			$.ajax({
+				url:'http://127.0.0.1:5000/community/blog_comment?id='+blogid,
+				type:'GET',
+				success:function(data){
+					comment=data['data'];
+					$("#page").jqPaginator({
+						totalCounts: comment.length?comment.length:1,
+						pageSize:pS,
+						visiblePages: 10,
+						currentPage: 1,
+						first: '<li class="first"><a href="javascript:void(0);">First<\/a><\/li>',
+						prev: '<li class="prev"><a href="javascript:void(0);">Previous<\/a><\/li>',
+						next: '<li class="next"><a href="javascript:void(0);">Next<\/a><\/li>',
+						last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
+						page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
+						onPageChange: function(n) {
+							show_comment(n);
+						}
+      				});					
+				},
+				error:function(data,ty,err){
+					console.log(data);
+					console.log(ty);
+					console.log(err);
+				}
+			});
+
+		}
 		function show_blog(){
 			$.ajax({
 				url:'http://127.0.0.1:5000/community/blog?id='+blogid,
@@ -54,6 +129,8 @@
 					var ptime=data['ptime'];
 					var username=data['username'];
 					var userid=data['userid'];
+					if (!data['profile_pic'])
+						data['profile_pic']='static/img/default.jpg';					
 					var profile_pic='\\'+data['profile_pic'];
 					$('#topic').text(topic);
 					$('#content').empty();
@@ -93,14 +170,16 @@
 					}
 					else{
 						$('#user_status').on('click',function(){
-							window.location.href='http://127.0.0.1:5000/community/person';
+							window.location.href='http://127.0.0.1:5000/community/person_detail?id='+localStorage.getItem('ORGid');
 						});
+						if (!data['data']['profile_pic'])
+							data['data']['profile_pic']='static/img/default.jpg';
 						$('#user_status').text(data['data']['username']);
 						$('#profile_pic').attr('src','/'+data['data']['profile_pic']);
 						$('#logout').on('click',function(){
 							localStorage.removeItem('ORGid');
 							localStorage.removeItem('ORGtoken');
-							window.location.href='http://127.0.0.1:5000/community';
+							window.location.reload(true);
 						});
 						$('#logout').show();
 					}
@@ -118,6 +197,37 @@
         $(document).ready(function(){
 			show_user();
 			show_blog();
+			get_comment();
+			$('#post_comment').on('click',function(){
+				var data={
+					userid:localStorage.getItem('ORGid'),
+					blogid:blogid,
+					content:$('#comment_content').val()
+				};
+				if (!data['content'])
+					$('#msg').text('评论不能为空');
+				else{
+					$.ajax({
+						url:'http://127.0.0.1:5000/community/blog_comment',
+						type:'POST',
+						headers:{
+							'Content-Type':'application/json',
+							'ORGtoken':localStorage.getItem('ORGtoken')						
+						},
+						data:JSON.stringify(data),
+						success:function(data){
+							if (data['status']!=2000)
+								alert(data['err']);
+							else
+								window.location.reload(true);
+						},
+						error:function(data,ty,err){
+							console.log(data);
+							alert('发布失败,请重试');
+						}
+					});
+				}
+			});
 		});
 
 	</script>

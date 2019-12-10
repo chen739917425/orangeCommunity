@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
 </head>
 
-<body id='body-community'>
+<body class='body-community'>
 	<div>
 		<img class='pic-community' src='\static\img\community.gif'>
 	</div>
@@ -85,7 +85,7 @@
 	<script type="text/javascript">
 		var blog=[];
 		var type='all',college='all',order='time';
-		var pS=5;
+		var pS=8;
 		function location_blog(id){
 			window.open('http://127.0.0.1:5000/community/blog_detail?id='+id);
 		}
@@ -111,7 +111,7 @@
 					}
 					else{
 						$('#user_status').on('click',function(){
-							window.location.href='http://127.0.0.1:5000/community/person';
+							window.location.href='http://127.0.0.1:5000/community/person_datail?id='+localStorage.getItem('ORGid');
 						});
 						$('#user_status').text(data['data']['username']);
 						if (!data['data']['profile_pic'])
@@ -124,7 +124,7 @@
 						$('#logout').on('click',function(){
 							localStorage.removeItem('ORGid');
 							localStorage.removeItem('ORGtoken');
-							window.location.href='http://127.0.0.1:5000/community';
+							window.location.reload(true);
 						});
 						$('#logout').show();
 					}
@@ -140,7 +140,7 @@
 				}
 			});
 		}
-		function show_page(n){
+		function show_blog(n){
 			if (!blog.length)
 				$('#blog').html("<p class='content'>无符合条件的结果</p>");
 			else{
@@ -151,6 +151,8 @@
 					var topic=blog[i]['topic'];
 					var college=blog[i]['college'];
 					var content=blog[i]['content']; 
+					if (!blog[i]['profile_pic'])
+						blog[i]['profile_pic']='static/img/default.jpg';	
 					var profile_pic='\\'+blog[i]['profile_pic'];
 					var ptime=blog[i]['ptime'];
 					var type=blog[i]['type'];
@@ -183,7 +185,7 @@
 						last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
 						page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
 						onPageChange: function(n) {
-							show_page(n);
+							show_blog(n);
 						}
       				});
 				},

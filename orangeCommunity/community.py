@@ -295,7 +295,8 @@ def blog_comment():
         blogid=request.args.get('id')
         con,cur=db.connect_db(DictCursor)
         sql='''
-            SELECT * FROM comment 
+            SELECT comment.*,user.username,user.profile_pic 
+            FROM comment INNER JOIN user ON comment.userid=user.id 
             WHERE blogid = %s
             ORDER BY ctime DESC
         '''

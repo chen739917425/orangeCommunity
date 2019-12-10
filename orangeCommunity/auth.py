@@ -1,6 +1,5 @@
 import re,os,sys,random,string,copy,json,pymysql
 from flask import Blueprint,g,redirect, render_template,escape,url_for,request,Response
-
 from werkzeug.security import generate_password_hash,check_password_hash
 from . import db, JWT
 

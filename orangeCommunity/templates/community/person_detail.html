@@ -8,11 +8,21 @@
 	<link rel="stylesheet" type="text/css" href="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
 </head>
-<body>
-    <form id='picForm' enctype='multipart/form-data'>
-        <input name='file' type='file' accept=".jpeg,.jpg,.png"/>
-        <button id='upload' type='button' class='button-upload'>上传</button>
-    </form>
+<body class='body-community'>
+    <div class='div-user'>
+        <a id='index' class='text-info' href="http://127.0.0.1:5000/community">社区首页</a>
+    </div>
+    <div class='div-info'>
+        <div class='text-title'>
+            <h1>Orange Community</h1>
+            <h2>Home</h2>
+        </div>
+        <form id='picForm' enctype='multipart/form-data'>
+            <label>修改头像</label> 
+            <input name='file' type='file' accept=".jpeg,.jpg,.png"/>
+            <button id='upload' type='button' class='button-upload'>上传</button>
+        </form>
+    </div>
     <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script>
     <script type='text/javascript' src="{{ url_for('static',filename='js/jquery.form.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='js/jq-paginator.js') }}"></script>
@@ -27,15 +37,20 @@
                 },
                 dataType:'json',
                 success:function(data){
-                    console.log(data);
+                    if (data['status']!=2000)
+                        alert(data['err']);
+                    else
+                        window.location.reload(true);
                 },
                 error:function(data,type,err){
-                    console.log(type);
-                    console.log(err);
-                    alert('请求出错，请重试');
+                    console.log(data);
+                    alert('上传失败，请重试');
                 }
             };
             $('#picForm').ajaxSubmit(options);
+        });
+        $(document).ready(function(){
+
         });
     </script>
 </body>

@@ -11,46 +11,287 @@
 <body class='body-community'>
     <div class='div-user'>
         <a id='index' class='text-info' href="http://127.0.0.1:5000/community">社区首页</a>
+        <a id='user_status' class='text-info' href="javascript:void(0);"></a>
     </div>
     <div class='div-info'>
         <div class='text-title'>
             <h1>Orange Community</h1>
             <h2>Home</h2>
         </div>
-        <form id='picForm' enctype='multipart/form-data'>
-            <label>修改头像</label> 
-            <input name='file' type='file' accept=".jpeg,.jpg,.png"/>
-            <button id='upload' type='button' class='button-upload'>上传</button>
-        </form>
+        <div class='div-leftbox'>
+            <br>
+            <img width="250px" height="250px" id='profile_pic'>
+            <br>
+            <h3 id='username'></h3> 
+            <a id='toFollow' hidden='hidden' href="javascript:void(0);">关注Ta</a>
+            <br>
+            <label>手机号: </label><label id='phone'></label>
+            <br><br>
+            <label>邮箱: </label><label id='email'></label>
+            <br><br>
+            <form hidden='hidden' id='picForm' enctype='multipart/form-data'>
+                <label>修改头像</label> 
+                <input name='file' type='file' accept=".jpeg,.jpg,.png"/>
+                <br>
+                <button id='upload' type='button' class='button-upload'>上传</button>
+            </form>     
+            <br>    
+        </div>
     </div>
+    <div class='div-friend'>
+        <div class='div-rightbox'>
+            <br>
+            <label>Ta关注的人</label>
+            <br>            
+            <div id='following'>
+            </div>
+            <ul id="following_page" class="pagination"></ul>
+            <br><br><br>
+            <label>关注Ta的人</label>
+            <br>            
+            <div id='follower'>
+            </div>
+            <ul id="follower_page" class="pagination"></ul>
+            <br>
+        </div>
+        <br>
+    </div>
+    <br>
     <script type="text/javascript" src="{{ url_for('static',filename='js/jquery-3.4.1.min.js')}}"></script>
     <script type='text/javascript' src="{{ url_for('static',filename='js/jquery.form.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static',filename='js/jq-paginator.js') }}"></script>
     <script type="text/javascript">
-        $('#upload').on('click',function(){
-            var url='http://127.0.0.1:5000/community/profile_pic?id='+localStorage['ORGid'];
-            var options={
-                url:url,
+        var userid={{ userid }};
+        var following, follower;
+        var pS=5;
+		function localtion_person(id){
+			window.open('http://127.0.0.1:5000/community/person_detail?id='+id);
+		}
+        function get_info(){
+            $.ajax({
+                url:'http://127.0.0.1:5000/community/profile?id='+userid,
+                type:'GET',
+                success:function(data){
+                    data=data['data'];
+                    if (!data['phone'])
+                        data['phone']='未填写';
+                    if (!data['email'])
+                        data['email']='未填写'
+                    if (!data['profile_pic'])
+                        data['profile_pic']='static/img/default.jpg';
+                    $('#username').text(data['username']);
+                    $('#profile_pic').attr('src','\\'+data['profile_pic']);
+                    $('#phone').text(data['phone']);
+                    $('#email').text(data['email']);
+                },
+                error:function(data){
+                    console.log(data);
+                    alert('加载失败,请刷新');
+                }
+            })
+        }
+        function show_following(n){
+			if (!following.length)
+				$('#following').html("<p class='content'>Ta还没有关注别人</p>");
+			else{
+				var L=(n-1)*pS, R=n*pS<following.length?n*pS-1:following.length-1;
+				$('#following').html('');
+				for (var i=L;i<=R;++i){
+					if (!following[i]['profile_pic'])
+						following[i]['profile_pic']='static/img/default.jpg';	
+					var profile_pic='\\'+following[i]['profile_pic'];
+                    var following_id=following[i]['userid'];
+					var username=following[i]['username'];
+					var item="<div style='text-align:center'>"; 
+					item+="<label>" + "<img height='30px' width='30px' src='" + profile_pic + "'>" + "<a herf='javascript:void(0);' onclick='localtion_person(" + following_id + ")'>" + username + "</a>" + "</label><br>";
+					item+="</div><br>";
+					$('#following').append(item);
+				}
+			}
+		}	
+        function show_follower(n){
+			if (!follower.length)
+				$('#follower').html("<p class='content'>还没有人关注Ta</p>");
+			else{
+				var L=(n-1)*pS, R=n*pS<follower.length?n*pS-1:follower.length-1;
+				$('#follower').html('');
+				for (var i=L;i<=R;++i){
+					if (!follower[i]['profile_pic'])
+						follower[i]['profile_pic']='static/img/default.jpg';	
+					var profile_pic='\\'+follower[i]['profile_pic'];
+                    var follower_id=follower[i]['followerid'];
+					var username=follower[i]['username'];
+					var item="<div style='text-align:center'>"; 
+					item+="<label>" + "<img height='30px' width='30px' src='" + profile_pic + "'>" + "<a herf='javascript:void(0);' onclick='localtion_person(" + follower_id + ")'>" + username + "</a>" + "</label><br>";
+					item+="</div><br>";
+					$('#follower').append(item);
+				}
+			}
+		}			
+		function get_follow(){
+            $.ajax({
+                url:'http://127.0.0.1:5000/community/following?id='+userid,
+                type:'GET',
+                success:function(data){
+                    following=data['data'];
+					$("#following_page").jqPaginator({
+						totalCounts: following.length?following.length:1,
+						pageSize:pS,
+						visiblePages: 10,
+						currentPage: 1,
+						first: '<li class="first"><a href="javascript:void(0);">First<\/a><\/li>',
+						prev: '<li class="prev"><a href="javascript:void(0);">Previous<\/a><\/li>',
+						next: '<li class="next"><a href="javascript:void(0);">Next<\/a><\/li>',
+						last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
+						page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
+						onPageChange: function(n) {
+							show_following(n);
+						}
+      				});					
+                },
+                error:function(data){
+                    console.log(data);
+                    alert('加载失败，请刷新');
+                }
+            });
+            $.ajax({
+                url:'http://127.0.0.1:5000/community/follower?id='+userid,
+                type:'GET',
+                success:function(data){
+                    follower=data['data'];
+					$("#follower_page").jqPaginator({
+						totalCounts: follower.length?follower.length:1,
+						pageSize:pS,
+						visiblePages: 10,
+						currentPage: 1,
+						first: '<li class="first"><a href="javascript:void(0);">First<\/a><\/li>',
+						prev: '<li class="prev"><a href="javascript:void(0);">Previous<\/a><\/li>',
+						next: '<li class="next"><a href="javascript:void(0);">Next<\/a><\/li>',
+						last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
+						page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
+						onPageChange: function(n) {
+							show_follower(n);
+						}
+      				});
+                },
+                error:function(data){
+                    console.log(data);
+                    alert('加载失败，请刷新');
+                }                
+            });
+        }
+        function follow_user(followid){
+            var data={
+                userid:localStorage.getItem('ORGid'),
+                followid:followid
+            };
+            $.ajax({
+                url:'http://127.0.0.1:5000/community/following',
                 type:'POST',
                 headers:{
-                    'ORGtoken':localStorage.getItem('ORGtoken')
+					'Content-Type':'application/json',
+					'ORGtoken':localStorage.getItem('ORGtoken')
                 },
-                dataType:'json',
+                data:JSON.stringify(data),
                 success:function(data){
                     if (data['status']!=2000)
                         alert(data['err']);
-                    else
+                    else{
+                        alert('关注成功');
                         window.location.reload(true);
+                    }
                 },
-                error:function(data,type,err){
+                error:function(data){
                     console.log(data);
-                    alert('上传失败，请重试');
+                    alert('关注失败,请重试');
                 }
-            };
-            $('#picForm').ajaxSubmit(options);
-        });
+            });
+        }
+        function show_user(){
+			$.ajax({
+				url:'http://127.0.0.1:5000/auth/verify',
+				type:'POST',
+				headers:{
+					'Content-Type':'application/json',
+					'ORGtoken':localStorage.getItem('ORGtoken')					
+				},
+				data:JSON.stringify({
+					userid:localStorage.getItem('ORGid')
+				}),
+				success:function(data){
+					if (data['status']!=2000){
+						$('#user_status').on('click',function(){
+							window.location.href='http://127.0.0.1:5000';
+						});
+						$('#user_status').text('登录');
+					}
+					else{
+						$('#user_status').on('click',function(){
+							window.location.href='http://127.0.0.1:5000/community/person_detail?id='+localStorage.getItem('ORGid');
+						});
+						$('#user_status').text(data['data']['username']);
+					}
+                    if (userid==localStorage.getItem('ORGid')){
+                        $('#picForm').show();
+                        $('#upload').on('click',function(){
+                            var url='http://127.0.0.1:5000/community/profile_pic?id='+localStorage['ORGid'];
+                            var options={
+                                url:url,
+                                type:'POST',
+                                headers:{
+                                    'ORGtoken':localStorage.getItem('ORGtoken')
+                                },
+                                dataType:'json',
+                                success:function(data){
+                                    if (data['status']!=2000)
+                                        alert(data['err']);
+                                    else
+                                        window.location.reload(true);
+                                },
+                                error:function(data,type,err){
+                                    console.log(data);
+                                    alert('上传失败，请重试');
+                                }
+                            };
+                            $('#picForm').ajaxSubmit(options);
+                        });        
+                    }   
+                    else{
+                        $('#toFollow').show();
+                        $.ajax({
+                            url:'http://127.0.0.1:5000/community/isFollow?A='+localStorage.getItem('ORGid')+'&B='+userid,
+                            type:'GET',
+                            success:function(data){
+                                var res=data['data']['result'];
+                                if (!res){
+                                    $('#toFollow').text('关注Ta');
+                                    $('#toFollow').on('click',function(){
+                                        follow_user(userid);
+                                    });
+                                }
+                                else
+                                    $('#toFollow').text('已关注');
+                            },
+                            error:function(data){
+                                console.log(data);
+                                alert(加载失败,请刷新);
+                            }
+                        });
+                    }                 
+				},
+				error:function(data){
+					console.log(data);
+					$('#user_status').on('click',function(){
+						window.location.href='http://127.0.0.1:5000';
+					});
+					$('#user_status').text('登录');
+				}
+			});
+		}
         $(document).ready(function(){
-
+            get_info();
+            get_follow();
+            show_user();  
         });
     </script>
 </body>

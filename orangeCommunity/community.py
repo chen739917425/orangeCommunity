@@ -22,7 +22,7 @@ def community():
 
 #定向社区个人页
 @bp.route('/person_detail')
-def person():
+def person_detail():
     userid=request.args.get('id')
     if not userid:
         return render_template('community/index.html')
@@ -162,6 +162,24 @@ def follower():
         res=cur.fetchall()
         resp={'data':res}
         return Response(json.dumps(resp),mimetype='application/json')    
+
+#GET:查询A用户是否关注B用户
+@bp.route('/isFollow')
+def isFollow():
+    if request.method=='GET':
+        A=request.args.get('A')
+        B=request.args.get('B')
+        res={'result':0}
+        if not A or not B:
+            resp={'data':res}
+            return Response(json.dumps(resp),mimetype='application/json')
+        con,cur=db.connect_db()
+        sql='SELECT COUNT(*) FROM follow WHERE followerid = %s and userid = %s'
+        pram=(A,B)
+        cur.execute(sql,pram)
+        res['result']=cur.fetchone()[0]
+        resp={'data':res}
+        return Response(json.dumps(resp),mimetype='application/json')
 
 #GET:获取博客详情信息
 @bp.route('/blog')

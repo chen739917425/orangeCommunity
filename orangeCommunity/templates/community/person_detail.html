@@ -34,8 +34,14 @@
                 <input name='file' type='file' accept=".jpeg,.jpg,.png"/>
                 <br>
                 <button id='upload' type='button' class='button-upload'>上传</button>
-            </form>     
-            <br>    
+            </form>
+            <div hidden='hidden' id='new_info'>
+                <label>手机号: </label><input id='new_phone' type="text"> 
+                <br><br>
+                <label>邮箱: </label><input id='new_email' type='text'>
+                <br><br>
+                <button class='button-upload' onclick="upd_info()">修改</button>
+            </div>
         </div>
     </div>
     <div class='div-middle'>
@@ -304,6 +310,7 @@
 					}
                     if (userid==localStorage.getItem('ORGid')){
                         $('#picForm').show();
+                        $('#new_info').show();
                         $('#upload').on('click',function(){
                             var url='http://127.0.0.1:5000/community/profile_pic?id='+localStorage['ORGid'];
                             var options={
@@ -359,6 +366,32 @@
 				}
 			});
 		}
+        function upd_info(){
+            var data={
+                userid:localStorage.getItem('ORGid'),
+                phone:$('#new_phone').val(),
+                email:$('#new_email').val()
+            };
+            $.ajax({
+                url:'http://127.0.0.1:5000/community/profile',
+                type:'PUT',
+                headers:{
+					'Content-Type':'application/json',
+					'ORGtoken':localStorage.getItem('ORGtoken')                    
+                },
+                data:JSON.stringify(data),
+                success:function(data){
+                    if (data['status']!=2000)
+                        alert(data['err']);
+                    else
+                        window.location.reload(true);
+                },
+                error:function(data){
+                    console.log(data);
+                    alert('修改失败,请重试');
+                }
+            })
+        }
         $(document).ready(function(){
             get_info();
             get_follow();

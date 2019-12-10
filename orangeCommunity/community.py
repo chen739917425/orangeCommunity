@@ -43,7 +43,7 @@ def blog_detail():
 
 
 #GET:获取用户个人信息
-@bp.route('/profile')
+@bp.route('/profile',methods=['GET','PUT'])
 def profile():
     if request.method=='GET':
         userid=request.args.get('id')
@@ -53,6 +53,30 @@ def profile():
         cur.execute(sql,pram)
         res=cur.fetchone()
         resp={'data':res}
+        return Response(json.dumps(resp),mimetype='application/json')
+    elif request.method=='PUT':
+        resp={'status':2000,'err':None}
+        token=request.headers.get('ORGtoken')
+        data=request.get_data(as_text=True)
+        data=json.loads(data)
+        userid=data['userid']
+        phone=data['phone']
+        email=data['email']
+        if not check_token(userid,token):
+            resp['status']=1005
+            resp['err']='身份验证失效,请重新登录'
+        else:                
+            con,cur=db.connect_db()
+            sql='UPDATE user SET phone = %s, email = %s WHERE id = %s'
+            pram=(phone,email,userid)
+            try:
+                cur.execute(sql,pram)
+                con.commit()
+            except Exception as e:
+                print(e)
+                con.rollback()
+                resp['status']=1000
+                resp['err']='服务器内部错误，请重试'
         return Response(json.dumps(resp),mimetype='application/json')
 
 #POST:上传头像

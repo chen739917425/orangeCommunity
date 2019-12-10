@@ -367,3 +367,66 @@ def user_comment():
             i['ctime']=i['ctime'].strftime('%Y-%m-%d %H:%M:%S')
         resp={'data':res}
         return Response(json.dumps(resp),mimetype='application/json')
+
+#GET:获取用户关注的话题 POST:添加用户关注的话题
+@bp.route('/star',methods=['GET','POST'])
+def star():
+    if request.method=='GET':
+        userid=request.args.get('id')
+        con,cur=db.connect_db(DictCursor)
+        sql='''
+            SELECT blog.* 
+            FROM blog INNER JOIN star ON blog.id=star.blogid
+            WHERE star.userid = %s
+        '''
+        pram=(userid,)
+        cur.execute(sql,pram)
+        res=cur.fetchall()
+        for i in res:
+            i['ptime']=i['ptime'].strftime('%Y-%m-%d %H:%M:%S')
+        resp={'data':res}
+        return Response(json.dumps(resp),mimetype='application/json')
+    elif request.method=='POST':
+        resp={'status':2000,'err':None}
+        token=request.headers.get('ORGtoken')
+        data=request.get_data(as_text=True)
+        data=json.loads(data)
+        userid=data['userid']
+        blogid=data['blogid']
+        if not check_token(userid,token):
+            resp['status']=1005
+            resp['err']='身份验证失效，请重新登录'
+        else:                
+            con,cur=db.connect_db()
+            sql='''
+                INSERT INTO star (userid,blogid,stime)
+                VALUES (%s, %s, CURRENT_TIMESTAMP)
+            '''
+            pram=(userid,blogid)
+            try:
+                cur.execute(sql,pram)
+                con.commit()
+            except Exception as e:
+                print(e)
+                con.rollback()
+                resp['status']=1000
+                resp['err']='服务器内部错误，请重试'
+        return Response(json.dumps(resp),mimetype='application/json')
+
+#GET:查询用户是否已关注某博客
+@bp.route('/isStar')
+def isStar():
+    if request.method=='GET':
+        userid=request.args.get('userid')
+        blogid=request.args.get('blogid')
+        res={'result':0}
+        if not userid or not blogid:
+            resp={'data':res}
+            return Response(json.dumps(resp),mimetype='application/json')
+        con,cur=db.connect_db();
+        sql='SELECT COUNT(*) FROM star WHERE userid = %s and blogid = %s'
+        pram=(userid,blogid)
+        cur.execute(sql,pram)
+        res['result']=cur.fetchone()[0]
+        resp={'data':res}
+        return Response(json.dumps(resp),mimetype='application/json')        

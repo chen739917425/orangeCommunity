@@ -111,7 +111,7 @@
 					}
 					else{
 						$('#user_status').on('click',function(){
-							window.location.href='http://127.0.0.1:5000/community/person_detail?id='+localStorage.getItem('ORGid');
+							window.location.href='http://127.0.0.1:5000/community/person_datail?id='+localStorage.getItem('ORGid');
 						});
 						$('#user_status').text(data['data']['username']);
 						if (!data['data']['profile_pic'])

@@ -31,6 +31,8 @@
 			<br>
 			<p id='content' class='content-detail'></p>
 			<br>
+			<a id='star' href='javascript:void(0);'>收藏此博客</a>
+			<br>
 			<label id='info' style='float:right'></label>
 			<br>
 			<br>
@@ -116,6 +118,53 @@
 			});
 
 		}
+		function star_blog(){
+			var data={
+				userid:localStorage.getItem('ORGid'),
+				blogid:blogid
+			};
+			$.ajax({
+				url:'http://127.0.0.1:5000/community/star',
+				type:'POST',
+				data:JSON.stringify(data),
+				headers:{
+					'Content-Type':'application/json',
+					'ORGtoken':localStorage.getItem('ORGtoken')
+				},
+				success:function(data){
+					if (data['status']!=2000)
+						alert(data['err']);
+					else{
+						alert('收藏成功');
+						window.location.reload(true);
+					}
+				},
+				error:function(data){
+					console.log(data);
+					alert('收藏失败，请重试');
+				}
+			});
+		}
+		function isStar(){
+			$.ajax({
+				url:'http://127.0.0.1:5000/community/isStar?userid='+localStorage.getItem('ORGid')+'&blogid='+blogid,
+				type:'GET',
+				success:function(data){
+					if (data['data']['result'])
+						$('#star').text('已收藏此博客');
+					else{
+						$('#star').text('收藏此博客');
+						$('#star').on('click',function(){
+							star_blog();
+						});
+					}
+				},
+				error:function(data){
+					console.log(data);
+					alert('加载失败,请重试');
+				}
+			});
+		}
 		function show_blog(){
 			$.ajax({
 				url:'http://127.0.0.1:5000/community/blog?id='+blogid,
@@ -141,6 +190,7 @@
 					$('#poster').on('click',function(){
 						window.open('http://127.0.0.1:5000/community/person_detail?id='+userid);
 					});
+					isStar();
 				},
 				error:function(data,ty,err){
 					console.log(data);

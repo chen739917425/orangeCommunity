@@ -31,7 +31,7 @@
 			<br>
 			<p id='content' class='content-detail'></p>
 			<br>
-			<a id='star' href='javascript:void(0);'>收藏此博客</a>
+			<a id='do' href='javascript:void(0);'>收藏此博客</a>
 			<br>
 			<label id='info' style='float:right'></label>
 			<br>
@@ -118,13 +118,40 @@
 			});
 
 		}
+		function delete_blog(){
+			var data={
+				userid:localStorage.getItem('ORGid'),
+				blogid:blogid
+			};
+			$.ajax({
+				url:'http://127.0.0.1:5000/community/person_blog?id=',
+				type:'DELETE',
+				headers:{
+					'Content-Type':'application/json',
+					'ORGtoken':localStorage.getItem('ORGtoken')					
+				},
+				data:JSON.stringify(data),
+				success:function(data){
+					if (data['status']!=2000)
+						alert(data['err']);
+					else{
+						alert('删除成功');
+						window.location.href='http://127.0.0.1:5000/community';
+					}
+				},
+				error:function(data){
+					console.log(data);
+					alert('删除失败，请重试');
+				}
+			});
+		}
 		function star_blog(){
 			var data={
 				userid:localStorage.getItem('ORGid'),
 				blogid:blogid
 			};
 			$.ajax({
-				url:'http://127.0.0.1:5000/community/star',
+				url:'http://127.0.0.1:5000/community/star_blog',
 				type:'POST',
 				data:JSON.stringify(data),
 				headers:{
@@ -145,25 +172,34 @@
 				}
 			});
 		}
-		function isStar(){
-			$.ajax({
-				url:'http://127.0.0.1:5000/community/isStar?userid='+localStorage.getItem('ORGid')+'&blogid='+blogid,
-				type:'GET',
-				success:function(data){
-					if (data['data']['result'])
-						$('#star').text('已收藏此博客');
-					else{
-						$('#star').text('收藏此博客');
-						$('#star').on('click',function(){
-							star_blog();
-						});
+		function check_blog(userid){
+			if (userid==localStorage.getItem('ORGid')){
+				$('#do').text('删除该博客');
+				$('#do').on('click',function(){
+					delete_blog();
+				});
+			}
+			else{
+				$.ajax({
+					url:'http://127.0.0.1:5000/community/isStar?userid='+localStorage.getItem('ORGid')+'&blogid='+blogid,
+					type:'GET',
+					success:function(data){
+						if (data['data']['result']){
+							$('#do').text('已收藏此博客');
+						}
+						else{
+							$('#do').text('收藏此博客');
+							$('#do').on('click',function(){
+								star_blog();
+							});
+						}
+					},
+					error:function(data){
+						console.log(data);
+						alert('加载失败,请重试');
 					}
-				},
-				error:function(data){
-					console.log(data);
-					alert('加载失败,请重试');
-				}
-			});
+				});
+			}
 		}
 		function show_blog(){
 			$.ajax({
@@ -190,7 +226,7 @@
 					$('#poster').on('click',function(){
 						window.open('http://127.0.0.1:5000/community/person_detail?id='+userid);
 					});
-					isStar();
+					check_blog(userid);
 				},
 				error:function(data,ty,err){
 					console.log(data);

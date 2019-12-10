@@ -20,7 +20,7 @@
         </div>
         <div class='div-leftbox'>
             <br>
-            <img width="250px" height="250px" id='profile_pic'>
+            <img width="220px" height="220px" id='profile_pic'>
             <br>
             <h3 id='username'></h3> 
             <a id='toFollow' hidden='hidden' href="javascript:void(0);">关注Ta</a>
@@ -36,6 +36,17 @@
                 <button id='upload' type='button' class='button-upload'>上传</button>
             </form>     
             <br>    
+        </div>
+    </div>
+    <div class='div-middle'>
+        <a onclick="get_blog('person_blog')" href='javascript:void(0);'>Ta的博客</a>&nbsp&nbsp
+        <a onclick="get_blog('star_blog')" href="javascript:void(0);">Ta关注的博客</a>&nbsp&nbsp
+        <a onclick="get_blog('follow_blog')" href="javascript:void(0);">Ta关注人的博客</a>
+        <br>
+        <div>
+            <div id=blog>
+            </div>
+            <ul id="blog_page" class="pagination"></ul>
         </div>
     </div>
     <div class='div-friend'>
@@ -63,7 +74,67 @@
     <script type="text/javascript">
         var userid={{ userid }};
         var following, follower;
+        var blog;
         var pS=5;
+		function location_blog(id){
+			window.open('http://127.0.0.1:5000/community/blog_detail?id='+id);
+		}
+		function show_blog(n){
+			if (!blog.length)
+				$('#blog').html("<p class='content'>无符合条件的结果</p>");
+			else{
+				var L=(n-1)*pS, R=n*pS<blog.length?n*pS-1:blog.length-1;
+				$('#blog').html('');
+				for (var i=L;i<=R;++i){
+					var id=blog[i]['id'];
+					var topic=blog[i]['topic'];
+					var college=blog[i]['college'];
+					var content=blog[i]['content']; 
+					if (!blog[i]['profile_pic'])
+						blog[i]['profile_pic']='static/img/default.jpg';	
+					var profile_pic='\\'+blog[i]['profile_pic'];
+					var ptime=blog[i]['ptime'];
+					var type=blog[i]['type'];
+					var username=blog[i]['username'];
+					var item="<div onclick='location_blog(" + id + ")' class='blog-item'>";
+					item+="<h4 style='text-align: center;'>"+topic+"</h4>"; 
+					item+="<p class='content'>"+content+"</p>";
+					item+="<label style='float:right'>" + college + "  " + type + "  " + "<img height='30px' width='30px' src='" + profile_pic + "'>" + username + "  " + ptime + "</label><br><br>";
+					item+="</div><br>";
+					$('#blog').append(item);
+				}
+			}
+		}		
+		function get_blog(url_type){
+			url='http://127.0.0.1:5000/community/'+url_type+'?id='+userid;
+			$.ajax({
+				url:url,
+				type:'GET',
+				dataType:'json',
+				success:function(data){
+					blog=data['data'];
+					$("#blog_page").jqPaginator({
+						totalCounts: blog.length?blog.length:1,
+						pageSize:pS,
+						visiblePages: 10,
+						currentPage: 1,
+						first: '<li class="first"><a href="javascript:void(0);">First<\/a><\/li>',
+						prev: '<li class="prev"><a href="javascript:void(0);">Previous<\/a><\/li>',
+						next: '<li class="next"><a href="javascript:void(0);">Next<\/a><\/li>',
+						last: '<li class="last"><a href="javascript:void(0);">Last<\/a><\/li>',
+						page: '<li class="page"><a href="javascript:void(0);">{page}<\/a><\/li>',
+						onPageChange: function(n) {
+							show_blog(n);
+						}
+      				});
+				},
+				error:function(data,ty,err){
+					console.log(ty);
+					console.log(err);
+					alert('加载出错，请刷新页面');
+				}
+			});
+		}
 		function localtion_person(id){
 			window.open('http://127.0.0.1:5000/community/person_detail?id='+id);
 		}
@@ -291,7 +362,8 @@
         $(document).ready(function(){
             get_info();
             get_follow();
-            show_user();  
+            show_user();
+            get_blog('person_blog');
         });
     </script>
 </body>

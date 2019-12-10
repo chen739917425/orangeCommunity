@@ -238,8 +238,8 @@ def all_blog():
         resp={'data':res}
         return Response(json.dumps(resp),mimetype='application/json')
 
-#GET:获取用户个人的博客 POST:发布用户的博客
-@bp.route('/person_blog',methods=['GET','POST'])
+#GET:获取用户个人的博客 POST:发布用户的博客 DELETE:删除用户的博客
+@bp.route('/person_blog',methods=['GET','POST','DELETE'])
 def person_blog():
     if request.method=='GET':
         userid=request.args.get('id')
@@ -285,6 +285,29 @@ def person_blog():
                 resp['status']=1000
                 resp['err']='服务器内部错误，请重试'
         return Response(json.dumps(resp),mimetype='application/json') 
+    elif request.method=='DELETE':
+        resp={'status':2000,'err':None}
+        token=request.headers.get('ORGtoken')
+        data=request.get_data(as_text=True)
+        data=json.loads(data)
+        userid=data['userid']
+        blogid=data['blogid']
+        if not check_token(userid,token):
+            resp['status']=1005
+            resp['err']='身份验证失效,请重新登录'
+        else:                
+            con,cur=db.connect_db()
+            sql='DELETE FROM blog WHERE id = %s'
+            pram=(blogid,)
+            try:
+                cur.execute(sql,pram)
+                con.commit()
+            except Exception as e:
+                print(e)
+                con.rollback()
+                resp['status']=1000
+                resp['err']='服务器内部错误，请重试'
+        return Response(json.dumps(resp),mimetype='application/json')        
 
 #GET:获取用户所有关注人的博客
 @bp.route('/follow_blog')
@@ -369,8 +392,8 @@ def user_comment():
         return Response(json.dumps(resp),mimetype='application/json')
 
 #GET:获取用户关注的话题 POST:添加用户关注的话题
-@bp.route('/star',methods=['GET','POST'])
-def star():
+@bp.route('/star_blog',methods=['GET','POST'])
+def star_blog():
     if request.method=='GET':
         userid=request.args.get('id')
         con,cur=db.connect_db(DictCursor)

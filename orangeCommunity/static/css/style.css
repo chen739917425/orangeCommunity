@@ -48,19 +48,25 @@
   position: relative;
   float: left;
   left:5%;
-  width: 40%;   
+  width: 20%;   
 }
 .div-friend{
   position: relative;
   float: right;
   right: 5%;
-  width: 38%;
-  top: 15%;
+  width: 18%;
+  top: 20%;
+}
+.div-middle{
+  position: relative;
+  float: left;
+  top: 20%;
+  left: 10%;
+  width: 40%;
 }
 .div-leftbox{
   font-size: 13px;
   font-family: 微软雅黑;
-  width: 55%;
   text-align: center;
   background-image: url('\\static\\img\\background2.jpg');
   border:1px solid black;
@@ -70,7 +76,6 @@
   font-size: 13px;
   font-family: 微软雅黑;
   float: right;
-  width: 50%;
   text-align: center;
   background-image: url('\\static\\img\\background2.jpg');
   border:1px solid black;

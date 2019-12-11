@@ -269,7 +269,7 @@ def person_blog():
         userid=request.args.get('id')
         con,cur=db.connect_db(DictCursor)
         sql='''
-            SELECT blog.*
+            SELECT blog.*,user.username,user.id,user.profile_pic
             FROM blog INNER JOIN user ON blog.userid=user.id
             WHERE user.id = %s
         '''
@@ -340,8 +340,8 @@ def follow_blog():
         userid=request.args.get('id')
         con,cur=db.connect_db(DictCursor)
         sql='''
-            SELECT blog.*
-            FROM blog INNER JOIN follow ON follow.userid = blog.userid
+            SELECT blog.*,user.username,user.id,user.profile_pic
+            FROM blog INNER JOIN follow ON follow.userid = blog.userid INNER JOIN user ON blog.userid = user.id
             WHERE follow.followerid = %s
             ORDER BY ptime DESC LIMIT 50
         '''
@@ -415,15 +415,15 @@ def user_comment():
         resp={'data':res}
         return Response(json.dumps(resp),mimetype='application/json')
 
-#GET:获取用户关注的话题 POST:添加用户关注的话题
+#GET:获取用户关注的博客 POST:添加用户关注的博客
 @bp.route('/star_blog',methods=['GET','POST'])
 def star_blog():
     if request.method=='GET':
         userid=request.args.get('id')
         con,cur=db.connect_db(DictCursor)
         sql='''
-            SELECT blog.* 
-            FROM blog INNER JOIN star ON blog.id=star.blogid
+            SELECT blog.*,user.username,user.id,user.profile_pic 
+            FROM blog INNER JOIN star ON blog.id=star.blogid INNER JOIN user ON blog.userid = user.id
             WHERE star.userid = %s
         '''
         pram=(userid,)
